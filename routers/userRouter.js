@@ -84,12 +84,33 @@ router.post("/signup",async(req,res)=>{
     }
 })
 
-router.post("/reportcomplain/:userId",(req,res)=>{
+router.post("/reportcomplain/:id",async(req,res)=>{
     try{
-        const {subject,description,location,department}=req.body;
-        const userID=req.params.userId;
+        const {subject,description,location,dname}=req.body;
+        const userId=req.params.id;
+        const dId= dname+location;
+        const checkDepartment=await department.findOne({departmentId:dId});
+        if(!checkDepartment){
+            throw new Error("Department does not exist");
+        }
+        const dPid=checkDepartment._id;
 
-    }catch(error){
+        const complainDetails= new complain({
+            userId,
+            departmentId:dPid,
+            status:false,
+            subject,
+            description,
+            location,
+            dname
+        })
+        const complainSave=await complainDetails.save();
+        if(!complainSave){
+            throw new Error("Failed to register complain")
+        }
+        res.status(200).json({success:"complain registered"})
+
+    }catch(err){
         res.status(400).json({error:`${err}`})
     }
 })

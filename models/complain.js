@@ -11,6 +11,10 @@ const complainSchema = new mongoose.Schema({
     ref: "department",
     required:true
   },
+  dname:{
+    type:String,
+    required:true
+  },
   status:{
     type:Boolean,
     required:true
@@ -25,7 +29,7 @@ const complainSchema = new mongoose.Schema({
   },
   location:{
     type:Number,
-    required:true
+    required:true,
   }
 });
 
