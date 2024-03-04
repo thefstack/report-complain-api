@@ -62,14 +62,13 @@ router.post("/signup",async(req,res)=>{
         if(!tempUserData){
             throw new Error("Verification failed")
         }
-        console.log(otp)
+
         const otpValid= await bcrypt.compare(otp,tempUserData.otp);
-        console.log(otpValid)
+
         if(otpValid){
             const addUser=new user({
                 name,gender,phone,email,aadhar,password
             })
-            console.log("OTP verification Success")
             const dataRes=await addUser.save();
             if(!dataRes){
                 throw new Error("Failed to add user to database")
@@ -80,6 +79,7 @@ router.post("/signup",async(req,res)=>{
         }
 
     }catch(err){
+        console.log(err)
         res.status(400).json({error:`${err}`})
     }
 })
@@ -112,6 +112,52 @@ router.post("/reportcomplain/:id",async(req,res)=>{
 
     }catch(err){
         res.status(400).json({error:`${err}`})
+    }
+})
+
+router.get("/viewcomplains/:id",async(req,res)=>{
+    try{
+        const userId=req.params.id;
+        
+        const getComplains=await complain.find({userId});
+        if(getComplains.length===0){
+            return res.status(400).json({data:[]})
+        }
+        
+        const complainData = getComplains.map(complain => ({
+            department: complain.dname,
+            subject: complain.subject,
+            description: complain.description,
+            zipcode: complain.location,
+            status: complain.status
+        }));
+
+        res.status(200).json({data:complainData})
+
+    }catch(err){
+        res.status(400).json({error:`${err}`})
+    }
+})
+
+router.get("/:id",async(req,res)=>{
+    try{
+        const id=req.params.id;
+        const getUser=await user.findOne({_id:id});
+        if(!getUser){
+            throw new Error("Error Fetching Profile")
+        }
+        const userData={
+            name:getUser.name,
+            gender:getUser.gender,
+            email:getUser.email,
+            phone:getUser.phone
+        }
+
+        res.status(200).json(userData)
+        
+
+    }catch(error){
+        res.status(400).json({error:`${error}`})
     }
 })
 
