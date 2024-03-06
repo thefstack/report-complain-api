@@ -84,6 +84,26 @@ router.post("/signup",async(req,res)=>{
     }
 })
 
+router.get("/login",async(req,res)=>{
+    try{
+        const {email,password}=req.body;
+
+        const findUser=await user.findOne({email});
+        if(!findUser){
+            throw new Error("wrong login credentials")
+        }
+        const verifyPass=await bcrypt.compare(password,findUser.password)
+        if(!verifyPass){
+            throw new Error("wrong login credentials")
+        }
+
+        res.status(200).json({id:`${findUser._id}`})
+
+    }catch(error){
+        res.status(400).json({error:`${error}`})
+    }
+})
+
 router.post("/reportcomplain/:id",async(req,res)=>{
     try{
         const {subject,description,location,dname}=req.body;
